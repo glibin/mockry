@@ -1,19 +1,34 @@
 import re
 import asyncio
+import logging
 
 import tornado.ioloop
 import tornado.web
 import tornado.httpclient
 import tornado.netutil
 import tornado.autoreload
-from tornado.options import options
+from tornado.options import options, define
 from tornado.escape import json_decode, json_encode
 import tornado.platform.caresresolver
-from tort.logger import configure_logging
+from tort.logger import configure_logging, tort_log
 from jsonpointer import resolve_pointer, set_pointer
 
 from .handler import PageHandler
 from .processor import processors
+
+
+define('debug', default=True, type=bool, help='Work in debug mode')
+define('port', default=7777, type=int, help='Port to run on')
+define('host', default='127.0.0.1', help='Host to run on')
+
+define('dns_resolver', default='tornado.platform.caresresolver.CaresResolver', help='DNS resolver')
+
+define('log_filename', default='/tmp/mockry.log', help='Log filename')
+define('log_level', default=logging.DEBUG, help='Log level')
+
+define('config', default=None, help='Path to configuration file')
+
+define('json', default='application.json', help='Path to application file')
 
 
 class StatusHandler(PageHandler):
@@ -89,15 +104,8 @@ class RouteHandler(PageHandler):
                     self.set_status(action['code'])
 
                 if action.get('output'):
-                    # self.log.info(self.resolver)
                     self.finish(self._resolve_value(action['output']))
             elif action['type'] == 'sleep':
-                # ioloop = tornado.ioloop.IOLoop.current()
-                #
-                # def _cb(f):
-                #     self.log.info('me called')
-                #
-                # ioloop.add_future(asyncio.ensure_future(asyncio.sleep(action['seconds'])), _cb)
                 self.log.info('Sleep for {} seconds'.format(action['seconds']))
                 await asyncio.sleep(action['seconds'])
             elif action['type'] == 'request':
@@ -151,23 +159,26 @@ def make_app(config):
     configure_logging(options.log_filename, options.log_level)
 
     tornado.httpclient.AsyncHTTPClient.configure('tornado.simple_httpclient.SimpleAsyncHTTPClient', max_clients=50)
-    # tornado.netutil.Resolver.configure(options.dns_resolver)
+    tornado.netutil.Resolver.configure(options.dns_resolver)
 
     return Application(config)
 
 
 def main():
     tornado.options.parse_command_line()
-    if options.options:
-        tornado.options.parse_config_file(options.options)
+    if options.config:
+        tornado.options.parse_config_file(options.config)
         tornado.options.parse_command_line()
 
-    with open(options.config, 'r') as f:
+    with open(options.json, 'r') as f:
         config = json_decode(f.read())
 
     if options.debug:
-        tornado.autoreload.watch(options.config)
+        tornado.autoreload.watch(options.json)
 
     app = make_app(config)
     app.listen(options.port, options.host)
+
+    tort_log.info('Starting server {}:{}'.format(options.host, options.port))
+
     tornado.ioloop.IOLoop.current().start()

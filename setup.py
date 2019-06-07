@@ -26,6 +26,7 @@ setup(
     url='https://github.com/glibin/mockry',
     download_url='https://github.com/glibin/mockry/tarball/{}'.format(version),
     packages=['mockry', 'mockry.test'],
+    license='LICENSE',
     install_requires=install_requires,
     classifiers=[
         'License :: OSI Approved :: MIT License',

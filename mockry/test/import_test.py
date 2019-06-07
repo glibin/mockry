@@ -12,7 +12,6 @@ import asyncio
 asyncio.set_event_loop(None)
 
 import mockry.version
-import mockry.options
 import mockry.app
 import mockry.handler
 import mockry.processor

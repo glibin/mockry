@@ -1,0 +1,25 @@
+{
+  "routes": [
+    {
+      "name": "Simple request matching",
+      "match": [
+        {
+          "type": "method",
+          "methods": [
+            "get"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "response",
+          "code": 200,
+          "output": {
+            "type": "value",
+            "value": {"status": true}
+          }
+        }
+      ]
+    }
+  ]
+}
