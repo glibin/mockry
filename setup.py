@@ -11,8 +11,9 @@ with open('mockry/version.py') as f:
 install_requires = ['tornado >= 6.0.2', 'tort >= 0.5.7', 'pycares >= 3.0.0', 'jsonpointer >= 2.0.0']
 
 
-with open('README.rst') as f:
+with open('README.md') as f:
     kwargs['long_description'] = f.read()
+    kwargs['long_description_content_type'] = 'text/markdown'
 
 
 python_requires = '>= 3.7'
