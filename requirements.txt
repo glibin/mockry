@@ -1,4 +1,4 @@
-tornado==6.0.2
+tornado==6.3.3
 tort==0.5.7
 pycares==3.0.0
 jsonpointer==2.0.0
